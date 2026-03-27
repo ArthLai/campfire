@@ -1,100 +1,97 @@
 # Campfire - Backend Requirements
 
 ## Overview
-露營行程規劃系統的後端需求，對應前端 `index.html` 的資料處理邏輯。
+露營行程規劃系統，前端使用 React (CDN) + Supabase 作為後端資料庫。
 
-目前前端使用 `localStorage` 做資料持久化，後端需將這些狀態遷移至 server-side 儲存，以支援多人即時協作。
+支援多人即時協作：成員資料（含簡介 bio）、行程確認狀態皆儲存在 Supabase，物品勾選保留在 localStorage（per-device）。
+
+---
+
+## Supabase Configuration
+
+- **Project URL:** `https://hrulsakkhelwnsvpnakx.supabase.co`
+- **Anon Key:** 已內嵌於 `index.html` 前端
+- **Migration:** 請在 Supabase SQL Editor 執行 `supabase/migration.sql`
 
 ---
 
 ## Data Models
 
 ### 1. Members（成員）
+```sql
+members (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  "group" TEXT NOT NULL CHECK ("group" IN ('A', 'B', 'C')),
+  avatar_url TEXT,
+  color TEXT NOT NULL,
+  bio TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+)
 ```
-Member {
-  id: number
-  name: string
-  group: 'A' | 'B' | 'C'    // A=林口, B=高鐵站, C=楊梅
-  avatar: string | null       // base64 or URL
-  color: string               // hex color for default avatar
-}
-```
-**API Endpoints:**
-- `GET /api/members` — 取得所有成員
-- `PUT /api/members/:id` — 更新成員名稱 / 頭像
-- `POST /api/members/:id/avatar` — 上傳頭像圖片（需圖片處理 & 儲存）
 
-### 2. Confirmation（行程確認）
+**Operations (via Supabase REST):**
+- `SELECT * FROM members ORDER BY id` — 取得所有成員
+- `UPDATE members SET name, bio, avatar_url WHERE id = ?` — 更新成員資料
+
+### 2. Confirmations（行程確認）
+```sql
+confirmations (
+  id SERIAL PRIMARY KEY,
+  member_name TEXT NOT NULL UNIQUE,
+  confirmed BOOLEAN DEFAULT TRUE,
+  confirmed_at TIMESTAMPTZ DEFAULT NOW()
+)
 ```
-Confirmation {
-  memberName: string
-  confirmed: boolean
-  confirmedAt: datetime
-}
-```
-**API Endpoints:**
-- `GET /api/confirmations` — 取得所有確認狀態
-- `POST /api/confirmations` — 確認行程（body: `{ name: string }`）
+
+**Operations:**
+- `SELECT * FROM confirmations` — 取得所有確認狀態
+- `UPSERT INTO confirmations (member_name, confirmed)` — 確認行程
 
 ### 3. Packing Checklist（物品清單勾選）
+```sql
+packing_checks (
+  id SERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  item_key TEXT NOT NULL,
+  checked BOOLEAN DEFAULT FALSE,
+  UNIQUE(user_id, item_key)
+)
 ```
-PackingCheck {
-  userId: string              // 識別使用者（cookie/session）
-  itemKey: string             // e.g. "group-0-1", "personal-2-0"
-  checked: boolean
-}
-```
-**API Endpoints:**
-- `GET /api/packing/:userId` — 取得該使用者的勾選狀態
-- `PUT /api/packing/:userId` — 批次更新勾選狀態
+
+目前物品勾選保留在 localStorage（per-device），未來可遷移至 Supabase。
 
 ---
 
 ## Static Data (Read-Only)
 
-以下資料目前寫死在前端，可保留為前端常數或移至後端 config：
+以下資料寫在前端常數中：
 
-### Schedule（行程表）
-- DAY 1: 10 個時間點（含高鐵班次表）
-- DAY 2: 3 個時間點
-- 含「待確認」標記的項目（午餐、晚餐菜單）
-
-### THSR Trains（高鐵班次）
-- 左營 → 桃園，3 個建議班次
-- 含推薦標記
-
-### Packing Lists（物品清單）
-- 團體公用：4 類別，共 ~20 項
-- 個人物品：4 類別，共 ~14 項
-
-### Campsite Info（營地資訊）
-- 地址、設備、交通路線、注意事項
+- **Schedule（行程表）**: DAY 1 (11 項) + DAY 2 (3 項)
+- **THSR Trains（高鐵班次）**: 左營→桃園 3 班次
+- **Packing Lists（物品清單）**: 團體公用 4 類 + 個人物品 4 類
+- **Campsite Info（營地資訊）**: 地址、設備、交通路線
 
 ---
 
-## Real-time Features（建議）
+## RLS (Row Level Security)
 
-若需多人即時協作，建議加入：
-- **WebSocket / SSE** — 行程確認狀態即時同步
-- **Optimistic UI** — 前端先更新再等後端回應
+已設定 anon 角色可讀寫所有資料（簡易應用無需帳號系統）。
 
 ---
 
-## Storage Considerations
+## Fallback 機制
 
-| 資料 | 目前方式 | 建議方案 |
-|------|---------|---------|
-| 成員資料 | localStorage | DB (SQLite / PostgreSQL) |
-| 頭像圖片 | base64 in localStorage | Object Storage (S3 / local uploads/) |
-| 行程確認 | localStorage | DB |
-| 物品勾選 | localStorage | DB (per-user) |
-| 行程/營地資訊 | 前端常數 | JSON config 或 DB |
+當 Supabase 無法連線時，自動降級為 localStorage 離線模式，頁面右下角顯示同步狀態：
+- ☁️ 已同步 — Supabase 連線正常
+- 📱 離線模式 — 使用 localStorage
+- 💾 儲存中... — 正在寫入 Supabase
 
 ---
 
-## Tech Stack Suggestion
+## Setup Steps
 
-- **Runtime:** Node.js / Python (FastAPI)
-- **Database:** SQLite (MVP) → PostgreSQL (production)
-- **File Storage:** Local `uploads/` → S3-compatible
-- **Auth:** Simple cookie-based session (無需帳號系統，選名字即可)
+1. 前往 [Supabase SQL Editor](https://hrulsakkhelwnsvpnakx.supabase.co)
+2. 執行 `supabase/migration.sql` 建立 tables + seed data
+3. 開啟 `index.html` 即可使用

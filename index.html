@@ -7,6 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -129,7 +130,7 @@ body {
 /* Members */
 .members-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
 }
 .member-card {
@@ -148,6 +149,12 @@ body {
 }
 .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .member-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.member-bio {
+  font-size: 12px; color: var(--text-light); margin-top: 6px;
+  line-height: 1.5; min-height: 18px;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
 .member-group {
   font-size: 11px; padding: 2px 10px; border-radius: 10px;
   display: inline-block; font-weight: 500;
@@ -173,7 +180,7 @@ body {
 }
 .modal {
   background: white; border-radius: var(--radius);
-  padding: 32px; width: 100%; max-width: 400px;
+  padding: 32px; width: 100%; max-width: 420px;
   box-shadow: var(--shadow-lg);
 }
 .modal h3 { font-size: 20px; margin-bottom: 20px; color: var(--green-dark); }
@@ -184,6 +191,13 @@ body {
   font-family: inherit; transition: border-color 0.2s;
 }
 .modal input[type="text"]:focus { outline: none; border-color: var(--green); }
+.modal textarea {
+  width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
+  border-radius: 10px; font-size: 14px; margin-bottom: 16px;
+  font-family: inherit; transition: border-color 0.2s;
+  resize: vertical; min-height: 60px; line-height: 1.6;
+}
+.modal textarea:focus { outline: none; border-color: var(--green); }
 .modal-avatar-upload {
   width: 100%; padding: 20px; border: 2px dashed #ccc;
   border-radius: 12px; text-align: center; cursor: pointer;
@@ -199,8 +213,20 @@ body {
 }
 .btn-primary { background: var(--green); color: white; flex: 1; }
 .btn-primary:hover { background: var(--green-dark); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-secondary { background: #f5f5f5; color: var(--text); }
 .btn-secondary:hover { background: #e0e0e0; }
+
+/* Sync status */
+.sync-status {
+  position: fixed; bottom: 20px; right: 20px; z-index: 300;
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 12px; font-weight: 500;
+  box-shadow: var(--shadow); transition: all 0.3s;
+}
+.sync-status.online { background: var(--green-pale); color: var(--green-dark); }
+.sync-status.offline { background: #fff3e0; color: var(--orange); }
+.sync-status.saving { background: #e3f2fd; color: #1565c0; }
 
 /* Campsite Info */
 .campsite-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -271,7 +297,7 @@ body {
 }
 .meeting-steps { font-size: 13px; color: var(--text-light); }
 .meeting-steps li { margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
-.meeting-steps li::before { content: '→'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.meeting-steps li::before { content: '\2192'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
 
 /* Confirmation */
 .confirm-section {
@@ -381,22 +407,27 @@ body {
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
-// ─── Data ───
-const INITIAL_MEMBERS = [
-  { id: 1, name: 'Kathy', group: 'A', avatar: null, color: '#1565c0' },
-  { id: 2, name: '鼎凱', group: 'A', avatar: null, color: '#1976d2' },
-  { id: 3, name: 'Arth', group: 'B', avatar: null, color: '#c62828' },
-  { id: 4, name: 'Mars', group: 'B', avatar: null, color: '#d32f2f' },
-  { id: 5, name: '石膏', group: 'B', avatar: null, color: '#e53935' },
-  { id: 6, name: 'Ella', group: 'B', avatar: null, color: '#ef5350' },
-  { id: 7, name: 'Emma', group: 'B', avatar: null, color: '#f44336' },
-  { id: 8, name: 'George', group: 'B', avatar: null, color: '#e57373' },
-  { id: 9, name: '小資', group: 'B', avatar: null, color: '#ef9a9a' },
-  { id: 10, name: '傑森', group: 'B', avatar: null, color: '#ffcdd2' },
-  { id: 11, name: '菀倩', group: 'C', avatar: null, color: '#ef6c00' },
-  { id: 12, name: 'Kedens', group: 'C', avatar: null, color: '#f57c00' },
+// ─── Supabase Client ───
+const SUPABASE_URL = 'https://hrulsakkhelwnsvpnakx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhydWxzYWtraGVsd25zdnBuYWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1OTE0NzAsImV4cCI6MjA5MDE2NzQ3MH0.WKeRkXy8CjtMw4kZvLzBUHZ7kF6KJI25NtgREbmb76U';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── Fallback Data (used when Supabase tables not yet created) ───
+const FALLBACK_MEMBERS = [
+  { id: 1, name: 'Kathy', group: 'A', avatar_url: null, color: '#1565c0', bio: '' },
+  { id: 2, name: '鼎凱', group: 'A', avatar_url: null, color: '#1976d2', bio: '' },
+  { id: 3, name: 'Arth', group: 'B', avatar_url: null, color: '#c62828', bio: '' },
+  { id: 4, name: 'Mars', group: 'B', avatar_url: null, color: '#d32f2f', bio: '' },
+  { id: 5, name: '石膏', group: 'B', avatar_url: null, color: '#e53935', bio: '' },
+  { id: 6, name: 'Ella', group: 'B', avatar_url: null, color: '#ef5350', bio: '' },
+  { id: 7, name: 'Emma', group: 'B', avatar_url: null, color: '#f44336', bio: '' },
+  { id: 8, name: 'George', group: 'B', avatar_url: null, color: '#e57373', bio: '' },
+  { id: 9, name: '小資', group: 'B', avatar_url: null, color: '#ef9a9a', bio: '' },
+  { id: 10, name: '傑森', group: 'B', avatar_url: null, color: '#ffcdd2', bio: '' },
+  { id: 11, name: '菀倩', group: 'C', avatar_url: null, color: '#ef6c00', bio: '' },
+  { id: 12, name: 'Kedens', group: 'C', avatar_url: null, color: '#f57c00', bio: '' },
 ];
 
 // 高鐵班次資料（左營 → 桃園，4/18 當日，自由座車廂 8-12）
@@ -484,34 +515,122 @@ const PACKING_PERSONAL = [
   ]},
 ];
 
-// ─── Helpers ───
-function loadState(key, fallback) {
+// ─── localStorage helpers (fallback) ───
+function loadLocal(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch { return fallback; }
 }
-function saveState(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function saveLocal(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
 // ─── App ───
 function App() {
-  const [members, setMembers] = useState(() => loadState('camp_members', INITIAL_MEMBERS));
-  const [confirmed, setConfirmed] = useState(() => loadState('camp_confirmed', {}));
+  const [members, setMembers] = useState(FALLBACK_MEMBERS);
+  const [confirmed, setConfirmed] = useState({});
   const [editMember, setEditMember] = useState(null);
-  const [packingChecked, setPackingChecked] = useState(() => loadState('camp_packing', {}));
+  const [packingChecked, setPackingChecked] = useState(() => loadLocal('camp_packing', {}));
   const [packingTab, setPackingTab] = useState('group');
   const [confirmSelect, setConfirmSelect] = useState('');
+  const [syncStatus, setSyncStatus] = useState('online');
+  const [useSupabase, setUseSupabase] = useState(true);
 
-  useEffect(() => saveState('camp_members', members), [members]);
-  useEffect(() => saveState('camp_confirmed', confirmed), [confirmed]);
-  useEffect(() => saveState('camp_packing', packingChecked), [packingChecked]);
+  // Load from Supabase on mount
+  useEffect(() => {
+    async function loadFromSupabase() {
+      try {
+        // Load members
+        const { data: membersData, error: membersErr } = await supabase
+          .from('members')
+          .select('*')
+          .order('id');
 
-  const groupLabel = g => g === 'A' ? 'A 組（林口）' : g === 'B' ? 'B 組（高鐵站）' : 'C 組（楊梅）';
+        if (membersErr) throw membersErr;
+
+        if (membersData && membersData.length > 0) {
+          setMembers(membersData);
+        }
+
+        // Load confirmations
+        const { data: confData, error: confErr } = await supabase
+          .from('confirmations')
+          .select('*');
+
+        if (confErr) throw confErr;
+
+        if (confData) {
+          const confMap = {};
+          confData.forEach(c => { confMap[c.member_name] = c.confirmed; });
+          setConfirmed(confMap);
+        }
+
+        setSyncStatus('online');
+      } catch (err) {
+        console.warn('Supabase not available, using local fallback:', err.message);
+        setUseSupabase(false);
+        setSyncStatus('offline');
+        // Load from localStorage as fallback
+        setMembers(loadLocal('camp_members', FALLBACK_MEMBERS));
+        setConfirmed(loadLocal('camp_confirmed', {}));
+      }
+    }
+
+    loadFromSupabase();
+  }, []);
+
+  // Save packing to localStorage (packing is per-device)
+  useEffect(() => saveLocal('camp_packing', packingChecked), [packingChecked]);
+
+  // Fallback: save to localStorage when Supabase is offline
+  useEffect(() => {
+    if (!useSupabase) {
+      saveLocal('camp_members', members);
+      saveLocal('camp_confirmed', confirmed);
+    }
+  }, [members, confirmed, useSupabase]);
+
   const groupClass = g => g === 'A' ? 'group-a' : g === 'B' ? 'group-b' : 'group-c';
   const confirmedCount = Object.values(confirmed).filter(Boolean).length;
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (!confirmSelect) return;
-    setConfirmed(prev => ({ ...prev, [confirmSelect]: true }));
+    const newConfirmed = { ...confirmed, [confirmSelect]: true };
+    setConfirmed(newConfirmed);
+
+    if (useSupabase) {
+      setSyncStatus('saving');
+      try {
+        await supabase.from('confirmations').upsert({
+          member_name: confirmSelect,
+          confirmed: true,
+          confirmed_at: new Date().toISOString()
+        }, { onConflict: 'member_name' });
+        setSyncStatus('online');
+      } catch {
+        setSyncStatus('offline');
+      }
+    }
     setConfirmSelect('');
+  }
+
+  async function handleSaveMember(updated) {
+    setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+    setEditMember(null);
+
+    if (useSupabase) {
+      setSyncStatus('saving');
+      try {
+        const { error } = await supabase.from('members').update({
+          name: updated.name,
+          bio: updated.bio || '',
+          avatar_url: updated.avatar_url,
+        }).eq('id', updated.id);
+
+        if (error) throw error;
+        setSyncStatus('online');
+      } catch (err) {
+        console.warn('Failed to save to Supabase:', err.message);
+        setSyncStatus('offline');
+      }
+    }
   }
 
   function togglePacking(key) {
@@ -555,17 +674,18 @@ function App() {
         <div className="section-header">
           <div className="section-icon">👥</div>
           <h2 className="section-title">成員介紹</h2>
-          <p className="section-desc">點擊成員卡片可編輯名稱 & 上傳頭像</p>
+          <p className="section-desc">點擊成員卡片可編輯名稱、簡介 & 上傳頭像</p>
         </div>
         <div className="members-grid">
           {members.map(m => (
             <div className="member-card" key={m.id} onClick={() => setEditMember(m)}>
               <button className="member-edit-btn">✏️</button>
-              <div className="member-avatar" style={m.avatar ? {} : { background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }}>
-                {m.avatar ? <img src={m.avatar} alt={m.name} /> : m.name[0]}
+              <div className="member-avatar" style={m.avatar_url ? {} : { background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }}>
+                {m.avatar_url ? <img src={m.avatar_url} alt={m.name} /> : m.name[0]}
               </div>
               <div className="member-name">{m.name}</div>
               <span className={`member-group ${groupClass(m.group)}`}>{m.group} 組</span>
+              {m.bio && <div className="member-bio">{m.bio}</div>}
             </div>
           ))}
         </div>
@@ -576,10 +696,7 @@ function App() {
         <EditModal
           member={editMember}
           onClose={() => setEditMember(null)}
-          onSave={(updated) => {
-            setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
-            setEditMember(null);
-          }}
+          onSave={handleSaveMember}
         />
       )}
 
@@ -821,6 +938,13 @@ function App() {
       <div className="footer">
         <p>🏕️ 臻美營地露營 2026.04.18-19 — Have Fun!</p>
       </div>
+
+      {/* Sync Status Indicator */}
+      <div className={`sync-status ${syncStatus}`}>
+        {syncStatus === 'online' && '☁️ 已同步'}
+        {syncStatus === 'offline' && '📱 離線模式'}
+        {syncStatus === 'saving' && '💾 儲存中...'}
+      </div>
     </>
   );
 }
@@ -828,7 +952,9 @@ function App() {
 // ─── Edit Modal Component ───
 function EditModal({ member, onClose, onSave }) {
   const [name, setName] = useState(member.name);
-  const [avatar, setAvatar] = useState(member.avatar);
+  const [bio, setBio] = useState(member.bio || '');
+  const [avatar, setAvatar] = useState(member.avatar_url);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef();
 
   function handleFile(e) {
@@ -839,12 +965,25 @@ function EditModal({ member, onClose, onSave }) {
     reader.readAsDataURL(file);
   }
 
+  async function handleSave() {
+    setSaving(true);
+    await onSave({ ...member, name, bio, avatar_url: avatar });
+    setSaving(false);
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h3>編輯成員資料</h3>
         <label>名稱</label>
         <input type="text" value={name} onChange={e => setName(e.target.value)} />
+        <label>簡介</label>
+        <textarea
+          value={bio}
+          onChange={e => setBio(e.target.value)}
+          placeholder="寫一段自我介紹吧！例如：興趣、露營經驗、負責項目..."
+          rows={3}
+        />
         <label>頭像</label>
         <input type="file" accept="image/*" ref={fileRef} style={{display:'none'}} onChange={handleFile} />
         <div className="modal-avatar-upload" onClick={() => fileRef.current.click()}>
@@ -856,8 +995,8 @@ function EditModal({ member, onClose, onSave }) {
         </div>
         <div className="modal-actions">
           <button className="btn btn-secondary" onClick={onClose}>取消</button>
-          <button className="btn btn-primary" onClick={() => onSave({...member, name, avatar})}>
-            儲存
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? '儲存中...' : '儲存'}
           </button>
         </div>
       </div>
