@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>臻美營地露營 | 2026.04.18-19</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green-dark: #2d5016;
+  --green: #4a7c28;
+  --green-light: #7cb342;
+  --green-pale: #e8f5e9;
+  --brown: #5d4037;
+  --brown-light: #8d6e63;
+  --cream: #fefaf3;
+  --orange: #ef6c00;
+  --orange-light: #fff3e0;
+  --text: #333;
+  --text-light: #666;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+  --radius: 16px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Navigation */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  transition: transform 0.3s;
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px;
+}
+.nav-logo { font-weight: 700; font-size: 16px; color: var(--green-dark); }
+.nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.nav-links a {
+  color: var(--text-light); text-decoration: none; font-size: 13px;
+  padding: 6px 12px; border-radius: 20px; transition: all 0.2s;
+  font-weight: 500;
+}
+.nav-links a:hover { background: var(--green-pale); color: var(--green-dark); }
+
+/* Hero */
+.hero {
+  position: relative; height: 100vh; min-height: 600px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR72y8baCjiywzyKzowJ-47UgKkelpNYR79A&s') center/cover no-repeat;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(45,80,22,0.75), rgba(93,64,55,0.65));
+}
+.hero-content {
+  position: relative; text-align: center; color: white; padding: 24px;
+}
+.hero-date {
+  font-size: 14px; letter-spacing: 6px; text-transform: uppercase;
+  opacity: 0.9; margin-bottom: 16px; font-weight: 300;
+}
+.hero-title {
+  font-size: clamp(36px, 8vw, 72px); font-weight: 900;
+  line-height: 1.2; margin-bottom: 12px;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+.hero-sub {
+  font-size: clamp(16px, 3vw, 22px); font-weight: 300;
+  opacity: 0.9; margin-bottom: 36px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+  padding: 10px 24px; border-radius: 50px;
+  font-size: 14px; font-weight: 500;
+}
+.hero-scroll {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  color: white; opacity: 0.7; animation: bounce 2s infinite;
+  font-size: 13px; text-align: center;
+}
+@keyframes bounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* Sections */
+.section {
+  max-width: 1100px; margin: 0 auto;
+  padding: 80px 24px;
+}
+.section-header {
+  text-align: center; margin-bottom: 48px;
+}
+.section-icon { font-size: 36px; margin-bottom: 12px; }
+.section-title {
+  font-size: 28px; font-weight: 700; color: var(--green-dark);
+  margin-bottom: 8px;
+}
+.section-desc { color: var(--text-light); font-size: 15px; }
+
+/* Cards */
+.card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+/* Members */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+.member-card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px 12px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+.member-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.member-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: white;
+  background: linear-gradient(135deg, var(--green), var(--green-light));
+  overflow: hidden; position: relative;
+}
+.member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.member-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.member-group {
+  font-size: 11px; padding: 2px 10px; border-radius: 10px;
+  display: inline-block; font-weight: 500;
+}
+.group-a { background: #e3f2fd; color: #1565c0; }
+.group-b { background: #fce4ec; color: #c62828; }
+.group-c { background: #fff8e1; color: #ef6c00; }
+.member-edit-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.06); cursor: pointer;
+  font-size: 12px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s;
+}
+.member-card:hover .member-edit-btn { opacity: 1; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal {
+  background: white; border-radius: var(--radius);
+  padding: 32px; width: 100%; max-width: 400px;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 20px; margin-bottom: 20px; color: var(--green-dark); }
+.modal label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text-light); }
+.modal input[type="text"] {
+  width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
+  border-radius: 10px; font-size: 15px; margin-bottom: 16px;
+  font-family: inherit; transition: border-color 0.2s;
+}
+.modal input[type="text"]:focus { outline: none; border-color: var(--green); }
+.modal-avatar-upload {
+  width: 100%; padding: 20px; border: 2px dashed #ccc;
+  border-radius: 12px; text-align: center; cursor: pointer;
+  margin-bottom: 16px; transition: border-color 0.2s;
+  font-size: 14px; color: var(--text-light);
+}
+.modal-avatar-upload:hover { border-color: var(--green); }
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+.btn {
+  padding: 10px 24px; border-radius: 10px; border: none;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-primary { background: var(--green); color: white; flex: 1; }
+.btn-primary:hover { background: var(--green-dark); }
+.btn-secondary { background: #f5f5f5; color: var(--text); }
+.btn-secondary:hover { background: #e0e0e0; }
+
+/* Campsite Info */
+.campsite-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) { .campsite-grid { grid-template-columns: 1fr; } }
+.campsite-card {
+  background: white; border-radius: var(--radius); padding: 24px;
+  box-shadow: var(--shadow);
+}
+.campsite-card h4 {
+  font-size: 15px; color: var(--green-dark); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.campsite-card p { font-size: 14px; color: var(--text-light); line-height: 1.8; }
+.campsite-warning {
+  background: var(--orange-light); border-left: 4px solid var(--orange);
+  padding: 16px 20px; border-radius: 0 12px 12px 0;
+  margin-top: 20px; font-size: 14px;
+}
+.campsite-warning strong { color: var(--orange); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px;
+  width: 2px; background: linear-gradient(to bottom, var(--green), var(--green-light));
+  border-radius: 1px;
+}
+.timeline-item { position: relative; margin-bottom: 20px; }
+.timeline-dot {
+  position: absolute; left: -32px; top: 4px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: white; border: 3px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.timeline-dot.highlight { background: var(--green); border-color: var(--green); }
+.timeline-time {
+  font-size: 13px; font-weight: 700; color: var(--green-dark);
+  margin-bottom: 2px;
+}
+.timeline-content {
+  background: white; border-radius: 12px; padding: 16px 20px;
+  box-shadow: var(--shadow); font-size: 14px;
+}
+.timeline-content strong { color: var(--brown); }
+.timeline-day-label {
+  font-size: 18px; font-weight: 700; color: var(--green-dark);
+  margin-bottom: 20px; padding: 8px 16px;
+  background: var(--green-pale); border-radius: 10px;
+  display: inline-block;
+}
+
+/* Meeting */
+.meeting-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.meeting-card {
+  background: white; border-radius: var(--radius); padding: 24px;
+  box-shadow: var(--shadow); border-top: 4px solid;
+}
+.meeting-card.group-a-card { border-color: #1565c0; }
+.meeting-card.group-b-card { border-color: #c62828; }
+.meeting-card.group-c-card { border-color: #ef6c00; }
+.meeting-card h4 { font-size: 16px; margin-bottom: 4px; }
+.meeting-card .route { font-size: 13px; color: var(--text-light); margin-bottom: 12px; }
+.meeting-card .members-list { font-size: 14px; margin-bottom: 16px; line-height: 2; }
+.meeting-card .members-list span {
+  display: inline-block; background: #f5f5f5; padding: 2px 10px;
+  border-radius: 8px; margin: 2px 4px 2px 0; font-size: 13px;
+}
+.meeting-steps { font-size: 13px; color: var(--text-light); }
+.meeting-steps li { margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+.meeting-steps li::before { content: '→'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+
+/* Confirmation */
+.confirm-section {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 28px;
+  margin-top: 28px;
+}
+.confirm-section h4 { font-size: 16px; color: var(--green-dark); margin-bottom: 16px; }
+.confirm-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px; margin-bottom: 20px;
+}
+.confirm-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  background: #f5f5f5; color: var(--text-light);
+  transition: all 0.3s;
+}
+.confirm-chip.confirmed {
+  background: var(--green-pale); color: var(--green-dark);
+}
+.confirm-chip .check { font-size: 14px; }
+.confirm-select {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.confirm-select select {
+  padding: 8px 14px; border: 2px solid #e0e0e0; border-radius: 10px;
+  font-size: 14px; font-family: inherit; background: white;
+}
+.confirm-select .btn { padding: 8px 20px; }
+
+/* Packing */
+.packing-tabs {
+  display: flex; gap: 8px; margin-bottom: 24px; justify-content: center;
+}
+.packing-tab {
+  padding: 10px 28px; border-radius: 50px; border: 2px solid #e0e0e0;
+  background: white; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.packing-tab.active {
+  background: var(--green); color: white; border-color: var(--green);
+}
+.packing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.packing-category {
+  background: white; border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.packing-category h4 {
+  font-size: 14px; font-weight: 700; color: var(--green-dark);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--green-pale);
+  display: flex; align-items: center; gap: 6px;
+}
+.packing-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; font-size: 13px;
+}
+.packing-check {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 2px solid #ccc; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.packing-check.checked { background: var(--green); border-color: var(--green); color: white; font-size: 11px; }
+.packing-item .note { color: var(--text-light); font-size: 12px; }
+
+/* THSR Train Table */
+.thsr-table-wrap {
+  margin-top: 12px; background: #f8f9fa; border-radius: 10px;
+  padding: 14px; font-size: 12px;
+}
+.thsr-table {
+  width: 100%; border-collapse: collapse;
+}
+.thsr-table th {
+  text-align: left; padding: 6px 8px; font-size: 11px;
+  color: var(--text-light); border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+}
+.thsr-table td {
+  padding: 5px 8px; border-bottom: 1px solid #eee; font-size: 12px;
+}
+.thsr-table tr:last-child td { border-bottom: none; }
+.thsr-table .recommend { background: #e8f5e9; }
+.thsr-type {
+  display: inline-block; padding: 1px 6px; border-radius: 4px;
+  font-size: 10px; font-weight: 600;
+}
+.thsr-type.semi { background: #e3f2fd; color: #1565c0; }
+.thsr-type.all { background: #fff3e0; color: #ef6c00; }
+.badge-tbc {
+  display: inline-block; background: #fff3e0; color: #ef6c00;
+  font-size: 11px; font-weight: 700; padding: 1px 8px;
+  border-radius: 6px; margin-left: 6px;
+}
+
+/* Footer */
+.footer {
+  text-align: center; padding: 40px 24px;
+  font-size: 13px; color: var(--text-light);
+  border-top: 1px solid #e0e0e0;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ─── Data ───
+const INITIAL_MEMBERS = [
+  { id: 1, name: 'Kathy', group: 'A', avatar: null, color: '#1565c0' },
+  { id: 2, name: '鼎凱', group: 'A', avatar: null, color: '#1976d2' },
+  { id: 3, name: 'Arth', group: 'B', avatar: null, color: '#c62828' },
+  { id: 4, name: 'Mars', group: 'B', avatar: null, color: '#d32f2f' },
+  { id: 5, name: '石膏', group: 'B', avatar: null, color: '#e53935' },
+  { id: 6, name: 'Ella', group: 'B', avatar: null, color: '#ef5350' },
+  { id: 7, name: 'Emma', group: 'B', avatar: null, color: '#f44336' },
+  { id: 8, name: 'George', group: 'B', avatar: null, color: '#e57373' },
+  { id: 9, name: '小資', group: 'B', avatar: null, color: '#ef9a9a' },
+  { id: 10, name: '傑森', group: 'B', avatar: null, color: '#ffcdd2' },
+  { id: 11, name: '菀倩', group: 'C', avatar: null, color: '#ef6c00' },
+  { id: 12, name: 'Kedens', group: 'C', avatar: null, color: '#f57c00' },
+];
+
+// 高鐵班次資料（左營 → 桃園，4/18 當日，自由座車廂 8-12）
+const THSR_TRAINS = [
+  { train: '0810', dep: '08:25', arr: '10:18', duration: '1h53m', recommend: true },
+  { train: '0616', dep: '08:35', arr: '10:09', duration: '1h34m', recommend: true },
+  { train: '0618', dep: '09:00', arr: '10:36', duration: '1h36m', recommend: false },
+];
+
+const SCHEDULE_DAY1 = [
+  { time: '08:25-09:00', title: '小資 & 傑森搭高鐵出發', desc: '左營站 → 桃園站（3 個可搭班次見下方，自由座車廂 8-12）', icon: '🚄', thsr: true },
+  { time: '10:30', title: 'Kathy & 鼎凱 從林口出發', desc: '開車前往桃園高鐵站接人｜Arth、Mars、石膏、Ella、Emma、George 在桃園高鐵站集合 + 租車', icon: '🚗' },
+  { time: '11:00', title: '高鐵站會合完成', desc: 'Kathy & 鼎凱到站接 3 人，租車手續完成，兩車出發', icon: '🤝' },
+  { time: '11:10', title: '前往家樂福平鎮店', desc: '菀倩 & Kedens 同步從楊梅出發', icon: '🛒' },
+  { time: '11:30', title: '全體在家樂福會合', desc: '午餐（待確認）+ 採買（1 小時）：一半人買食材，一半人買熟食當午餐', highlight: true, icon: '🍱' },
+  { time: '12:30', title: '三台車出發前往營地', desc: '國道三號關西交流道 → 台三線 → 竹120線經內灣 → 尖石', icon: '⛰️' },
+  { time: '13:50-14:00', title: '抵達臻美營地 Check-in', desc: '注意八五山大橋前右轉上坡 700m', highlight: true, icon: '⛺' },
+  { time: '14:00-14:30', title: '休息 & 放置東西', desc: '熟悉營地環境、整理營位', icon: '🎒' },
+  { time: '14:30-17:30', title: '遊戲時間', desc: '團康遊戲（3 小時）', icon: '🎮' },
+  { time: '17:30-19:00', title: '煮晚餐 & 用餐（待確認）', desc: '韓式部隊鍋 + 煎烤肉片（菜單待確認）', icon: '🍲' },
+  { time: '19:00 起', title: '自由時間', desc: '聊天、桌遊、看星星', icon: '🌙' },
+];
+
+const SCHEDULE_DAY2 = [
+  { time: '08:00-09:00', title: '早餐（待確認）', desc: '煎蛋火腿三明治 + 玉米濃湯（菜單待確認）', icon: '🍳' },
+  { time: '09:00-11:00', title: '自由活動 & 收拾', desc: '拍照、散步、整理營地', icon: '📸' },
+  { time: '11:00', title: 'Check-out & 賦歸', desc: '平安回家！', icon: '🏠' },
+];
+
+const PACKING_GROUP = [
+  { category: '炊具', icon: '🍳', items: [
+    { name: '卡式瓦斯爐 ×1（額外自帶）', note: '營地提供 1 個，共 2 爐' },
+    { name: '瓦斯罐 ×4-6', note: '家樂福買' },
+    { name: '大湯鍋 ×1', note: '部隊鍋用，營地只有煎烤盤' },
+  ]},
+  { category: '餐具 & 耗材', icon: '🍽️', items: [
+    { name: '免洗碗 ×15、盤 ×15' },
+    { name: '免洗筷 ×15' },
+    { name: '紙杯 ×20' },
+    { name: '廚房紙巾 ×2 捲' },
+    { name: '垃圾袋（大）×1 捲' },
+    { name: '鋁箔紙 ×1 捲' },
+    { name: '保鮮膜 ×1' },
+  ]},
+  { category: '調味品', icon: '🧂', items: [
+    { name: '鹽、胡椒' },
+    { name: '醬油' },
+    { name: '食用油' },
+    { name: '烤肉醬 ×1' },
+    { name: '韓式辣醬 ×1' },
+    { name: '美乃滋、番茄醬' },
+  ]},
+  { category: '其他公用', icon: '📦', items: [
+    { name: '保冷袋 / 冰桶 + 冰塊' },
+    { name: '延長線 ×1', note: '視營地供電' },
+    { name: '露營燈 / 照明 ×2-3' },
+    { name: '桌遊 / 遊戲道具' },
+    { name: '藍牙喇叭' },
+    { name: '打火機' },
+  ]},
+];
+
+const PACKING_PERSONAL = [
+  { category: '衣物', icon: '👕', items: [
+    { name: '換洗衣物（1 套 + 睡衣）' },
+    { name: '外套 / 薄羽絨', note: '山區夜晚 12-16°C' },
+    { name: '拖鞋' },
+  ]},
+  { category: '盥洗', icon: '🪥', items: [
+    { name: '牙刷、牙膏' },
+    { name: '毛巾' },
+    { name: '個人保養品' },
+  ]},
+  { category: '睡眠', icon: '😴', items: [
+    { name: '睡袋或毯子', note: '確認營地是否提供' },
+    { name: '枕頭（可選）' },
+  ]},
+  { category: '其他', icon: '🎒', items: [
+    { name: '個人藥品' },
+    { name: '防蚊液' },
+    { name: '防曬乳' },
+    { name: '手電筒 / 頭燈' },
+    { name: '行動電源 + 充電線' },
+    { name: '身分證（租車用）' },
+  ]},
+];
+
+// ─── Helpers ───
+function loadState(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+function saveState(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// ─── App ───
+function App() {
+  const [members, setMembers] = useState(() => loadState('camp_members', INITIAL_MEMBERS));
+  const [confirmed, setConfirmed] = useState(() => loadState('camp_confirmed', {}));
+  const [editMember, setEditMember] = useState(null);
+  const [packingChecked, setPackingChecked] = useState(() => loadState('camp_packing', {}));
+  const [packingTab, setPackingTab] = useState('group');
+  const [confirmSelect, setConfirmSelect] = useState('');
+
+  useEffect(() => saveState('camp_members', members), [members]);
+  useEffect(() => saveState('camp_confirmed', confirmed), [confirmed]);
+  useEffect(() => saveState('camp_packing', packingChecked), [packingChecked]);
+
+  const groupLabel = g => g === 'A' ? 'A 組（林口）' : g === 'B' ? 'B 組（高鐵站）' : 'C 組（楊梅）';
+  const groupClass = g => g === 'A' ? 'group-a' : g === 'B' ? 'group-b' : 'group-c';
+  const confirmedCount = Object.values(confirmed).filter(Boolean).length;
+
+  function handleConfirm() {
+    if (!confirmSelect) return;
+    setConfirmed(prev => ({ ...prev, [confirmSelect]: true }));
+    setConfirmSelect('');
+  }
+
+  function togglePacking(key) {
+    setPackingChecked(prev => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  return (
+    <>
+      {/* Nav */}
+      <nav className="nav">
+        <div className="nav-inner">
+          <div className="nav-logo">⛺ 臻美營地</div>
+          <div className="nav-links">
+            <a href="#members">成員</a>
+            <a href="#campsite">營地</a>
+            <a href="#schedule">議程</a>
+            <a href="#meeting">集合</a>
+            <a href="#packing">物品</a>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero-bg" />
+        <div className="hero-overlay" />
+        <div className="hero-content">
+          <div className="hero-date">2026 · 04 · 18 — 19</div>
+          <h1 className="hero-title">臻美營地露營</h1>
+          <p className="hero-sub">新竹尖石 · 12 人 · 兩天一夜</p>
+          <div className="hero-badge">📍 新竹縣尖石鄉 · 海拔 900m</div>
+        </div>
+        <div className="hero-scroll">
+          <div>往下滑動</div>
+          <div style={{fontSize:20, marginTop:4}}>↓</div>
+        </div>
+      </section>
+
+      {/* Members */}
+      <section className="section" id="members">
+        <div className="section-header">
+          <div className="section-icon">👥</div>
+          <h2 className="section-title">成員介紹</h2>
+          <p className="section-desc">點擊成員卡片可編輯名稱 & 上傳頭像</p>
+        </div>
+        <div className="members-grid">
+          {members.map(m => (
+            <div className="member-card" key={m.id} onClick={() => setEditMember(m)}>
+              <button className="member-edit-btn">✏️</button>
+              <div className="member-avatar" style={m.avatar ? {} : { background: `linear-gradient(135deg, ${m.color}, ${m.color}dd)` }}>
+                {m.avatar ? <img src={m.avatar} alt={m.name} /> : m.name[0]}
+              </div>
+              <div className="member-name">{m.name}</div>
+              <span className={`member-group ${groupClass(m.group)}`}>{m.group} 組</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Edit Modal */}
+      {editMember && (
+        <EditModal
+          member={editMember}
+          onClose={() => setEditMember(null)}
+          onSave={(updated) => {
+            setMembers(prev => prev.map(m => m.id === updated.id ? updated : m));
+            setEditMember(null);
+          }}
+        />
+      )}
+
+      {/* Campsite */}
+      <section className="section" id="campsite" style={{background:'white'}}>
+        <div style={{maxWidth:1100,margin:'0 auto',padding:'0 24px'}}>
+          <div className="section-header">
+            <div className="section-icon">🏕️</div>
+            <h2 className="section-title">營地介紹</h2>
+            <p className="section-desc">臻美營地 · 新竹尖石鄉</p>
+          </div>
+          <div className="campsite-grid">
+            <div className="campsite-card">
+              <h4>📍 地址</h4>
+              <p>313 新竹縣尖石鄉新樂村煤源段 8 鄰 36-2 號</p>
+              <p style={{marginTop:8}}>海拔約 900 公尺，八五山附近，擁有絕佳高山景觀視野。</p>
+            </div>
+            <div className="campsite-card">
+              <h4>🔧 營地設備</h4>
+              <p>營地提供：不沾鍋煎烤盤（含夾、勺、鏟）、卡式爐 ×1</p>
+              <p style={{marginTop:8}}>其他餐具、調味品需自備。</p>
+            </div>
+            <div className="campsite-card">
+              <h4>🚗 交通路線</h4>
+              <p>國道三號關西交流道 → 台三線南下 69km 處左轉往內灣 → 循竹 120 線 → 尖石 → 40.5k 八五山大橋頭前右轉上坡 700m</p>
+            </div>
+            <div className="campsite-card">
+              <h4>⏱ 車程參考</h4>
+              <p>家樂福平鎮店 → 營地：約 70-90 分鐘</p>
+              <p>（含國三 + 山路，假日內灣段可能塞車）</p>
+            </div>
+          </div>
+          <div className="campsite-warning">
+            <strong>⚠️ 注意事項</strong><br />
+            Google 導航到八五山大橋附近可能不準，請開慢留意「臻美營地」指標牌。最後 700m 為水泥上坡路段，蠻陡的，低底盤轎車請注意底盤及檔位。
+          </div>
+        </div>
+      </section>
+
+      {/* Schedule */}
+      <section className="section" id="schedule">
+        <div className="section-header">
+          <div className="section-icon">📅</div>
+          <h2 className="section-title">露營議程</h2>
+          <p className="section-desc">兩天一夜完整時程</p>
+        </div>
+        <div style={{maxWidth:640, margin:'0 auto'}}>
+          <div className="timeline-day-label">DAY 1 — 4/18（六）</div>
+          <div className="timeline">
+            {SCHEDULE_DAY1.map((s, i) => (
+              <div className="timeline-item" key={i}>
+                <div className={`timeline-dot ${s.highlight ? 'highlight' : ''}`}>
+                  <span>{s.icon}</span>
+                </div>
+                <div className="timeline-time">{s.time}</div>
+                <div className="timeline-content">
+                  <strong>{s.title}</strong><br />
+                  <span style={{color:'var(--text-light)'}}>{s.desc}</span>
+                  {s.thsr && (
+                    <div className="thsr-table-wrap">
+                      <table className="thsr-table">
+                        <thead>
+                          <tr><th>車次</th><th>左營發車</th><th>桃園到站</th><th>車程</th></tr>
+                        </thead>
+                        <tbody>
+                          {THSR_TRAINS.map((t, ti) => (
+                            <tr key={ti} className={t.recommend ? 'recommend' : ''}>
+                              <td style={{fontWeight:600}}>{t.train}</td>
+                              <td style={{fontWeight:600}}>{t.dep}</td>
+                              <td style={{fontWeight:600}}>{t.arr}</td>
+                              <td>{t.duration}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div style={{marginTop:8, fontSize:11, color:'var(--green-dark)'}}>
+                        💡 <strong>建議搭 0810 或 0616</strong>（綠底），10:09-10:18 到桃園可銜接 10:30 集合。0618 車次 10:36 到站會來不及，僅作備案。自由座車廂 8-12 車。
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="timeline-day-label" style={{marginTop:40}}>DAY 2 — 4/19（日）</div>
+          <div className="timeline">
+            {SCHEDULE_DAY2.map((s, i) => (
+              <div className="timeline-item" key={i}>
+                <div className={`timeline-dot ${s.highlight ? 'highlight' : ''}`}>
+                  <span>{s.icon}</span>
+                </div>
+                <div className="timeline-time">{s.time}</div>
+                <div className="timeline-content">
+                  <strong>{s.title}</strong><br />
+                  <span style={{color:'var(--text-light)'}}>{s.desc}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Meeting */}
+      <section className="section" id="meeting" style={{background:'white'}}>
+        <div style={{maxWidth:1100,margin:'0 auto',padding:'0 24px'}}>
+          <div className="section-header">
+            <div className="section-icon">🚗</div>
+            <h2 className="section-title">集合方式</h2>
+            <p className="section-desc">三組分頭出發，家樂福平鎮店全體會合</p>
+          </div>
+
+          <div className="meeting-groups">
+            <div className="meeting-card group-a-card">
+              <h4>🔵 A 組 — 林口出發</h4>
+              <div className="route">林口 → 桃園高鐵站接人 → 家樂福平鎮</div>
+              <div className="members-list">
+                <span>Kathy</span><span>鼎凱</span>
+                <span style={{background:'#e3f2fd'}}>+ 接 3 人</span>
+              </div>
+              <ul className="meeting-steps">
+                <li>10:30 Kathy & 鼎凱從林口出發</li>
+                <li>11:00 到桃園高鐵站接 3 人（待分配）</li>
+                <li>11:10 5 人出發前往家樂福平鎮</li>
+                <li>11:30 抵達家樂福</li>
+              </ul>
+            </div>
+
+            <div className="meeting-card group-b-card">
+              <h4>🔴 B 組 — 桃園高鐵站</h4>
+              <div className="route">高鐵站集合 + 租車 → 家樂福平鎮</div>
+              <div className="members-list">
+                <span>Arth</span><span>Mars</span><span>石膏</span><span>Ella</span>
+                <span>Emma</span><span>George</span>
+                <span style={{background:'#fce4ec'}}>小資 🚄</span>
+                <span style={{background:'#fce4ec'}}>傑森 🚄</span>
+              </div>
+              <ul className="meeting-steps">
+                <li>08:25 小資 & 傑森搭 0810 或 08:35 搭 0616 從左營出發（10:09-10:18 到桃園）</li>
+                <li>10:30 Arth、Mars、石膏、Ella、Emma、George 在高鐵站集合</li>
+                <li>10:30-11:00 辦理租車（9 人座）+ 等小資 & 傑森到站</li>
+                <li>11:00 Kathy & 鼎凱到站，3 人上林口車</li>
+                <li>11:10 租車載 7 人出發往家樂福</li>
+                <li>11:30 抵達家樂福</li>
+              </ul>
+            </div>
+
+            <div className="meeting-card group-c-card">
+              <h4>🟠 C 組 — 楊梅出發</h4>
+              <div className="route">楊梅 → 家樂福平鎮</div>
+              <div className="members-list">
+                <span>菀倩</span><span>Kedens</span>
+              </div>
+              <ul className="meeting-steps">
+                <li>11:10 菀倩 & Kedens 從楊梅出發</li>
+                <li>11:30 抵達家樂福</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Confirmation */}
+          <div className="confirm-section">
+            <h4>✅ 行程確認（{confirmedCount}/{members.length} 已確認）</h4>
+            <div style={{
+              height: 6, background: '#eee', borderRadius: 3, marginBottom: 20, overflow: 'hidden'
+            }}>
+              <div style={{
+                height: '100%', width: `${(confirmedCount/members.length)*100}%`,
+                background: 'linear-gradient(90deg, var(--green), var(--green-light))',
+                borderRadius: 3, transition: 'width 0.5s'
+              }} />
+            </div>
+            <div className="confirm-grid">
+              {members.map(m => (
+                <div className={`confirm-chip ${confirmed[m.name] ? 'confirmed' : ''}`} key={m.id}>
+                  <span className="check">{confirmed[m.name] ? '✅' : '⬜'}</span>
+                  {m.name}
+                </div>
+              ))}
+            </div>
+            <div className="confirm-select">
+              <select value={confirmSelect} onChange={e => setConfirmSelect(e.target.value)}>
+                <option value="">選擇你的名字</option>
+                {members.filter(m => !confirmed[m.name]).map(m => (
+                  <option key={m.id} value={m.name}>{m.name}</option>
+                ))}
+              </select>
+              <button className="btn btn-primary" style={{flex:'none'}} onClick={handleConfirm}>
+                我已確認行程 ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Packing */}
+      <section className="section" id="packing">
+        <div className="section-header">
+          <div className="section-icon">🎒</div>
+          <h2 className="section-title">攜帶物品</h2>
+          <p className="section-desc">勾選已準備的項目，進度會自動儲存</p>
+        </div>
+        <div className="packing-tabs">
+          <button className={`packing-tab ${packingTab==='group'?'active':''}`} onClick={()=>setPackingTab('group')}>
+            📦 團體公用
+          </button>
+          <button className={`packing-tab ${packingTab==='personal'?'active':''}`} onClick={()=>setPackingTab('personal')}>
+            🎒 個人物品
+          </button>
+        </div>
+        <div className="packing-grid">
+          {(packingTab === 'group' ? PACKING_GROUP : PACKING_PERSONAL).map((cat, ci) => (
+            <div className="packing-category" key={ci}>
+              <h4>{cat.icon} {cat.category}</h4>
+              {cat.items.map((item, ii) => {
+                const key = `${packingTab}-${ci}-${ii}`;
+                return (
+                  <div className="packing-item" key={ii}>
+                    <div
+                      className={`packing-check ${packingChecked[key] ? 'checked' : ''}`}
+                      onClick={() => togglePacking(key)}
+                    >
+                      {packingChecked[key] && '✓'}
+                    </div>
+                    <div>
+                      <span style={packingChecked[key] ? {textDecoration:'line-through', opacity:0.5} : {}}>
+                        {item.name}
+                      </span>
+                      {item.note && <span className="note"> — {item.note}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <div className="footer">
+        <p>🏕️ 臻美營地露營 2026.04.18-19 — Have Fun!</p>
+      </div>
+    </>
+  );
+}
+
+// ─── Edit Modal Component ───
+function EditModal({ member, onClose, onSave }) {
+  const [name, setName] = useState(member.name);
+  const [avatar, setAvatar] = useState(member.avatar);
+  const fileRef = useRef();
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setAvatar(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <h3>編輯成員資料</h3>
+        <label>名稱</label>
+        <input type="text" value={name} onChange={e => setName(e.target.value)} />
+        <label>頭像</label>
+        <input type="file" accept="image/*" ref={fileRef} style={{display:'none'}} onChange={handleFile} />
+        <div className="modal-avatar-upload" onClick={() => fileRef.current.click()}>
+          {avatar ? (
+            <img src={avatar} alt="preview" style={{width:80,height:80,borderRadius:'50%',objectFit:'cover'}} />
+          ) : (
+            <div>📷 點擊上傳圖片</div>
+          )}
+        </div>
+        <div className="modal-actions">
+          <button className="btn btn-secondary" onClick={onClose}>取消</button>
+          <button className="btn btn-primary" onClick={() => onSave({...member, name, avatar})}>
+            儲存
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
