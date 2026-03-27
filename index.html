@@ -949,25 +949,83 @@ function App() {
   );
 }
 
+// ─── Upload to Supabase Storage ───
+async function uploadAvatarToStorage(file, memberId) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `member-${memberId}-${Date.now()}.${fileExt}`;
+  const filePath = `avatars/${fileName}`;
+
+  const { data, error } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  const { data: urlData } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  return urlData.publicUrl;
+}
+
 // ─── Edit Modal Component ───
 function EditModal({ member, onClose, onSave }) {
   const [name, setName] = useState(member.name);
   const [bio, setBio] = useState(member.bio || '');
   const [avatar, setAvatar] = useState(member.avatar_url);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarMode, setAvatarMode] = useState('url'); // 'url' or 'file'
+  const [avatarUrlInput, setAvatarUrlInput] = useState(member.avatar_url || '');
   const [saving, setSaving] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const fileRef = useRef();
 
   function handleFile(e) {
     const file = e.target.files[0];
     if (!file) return;
+    setAvatarFile(file);
+    setUploadError('');
+    // Preview locally
     const reader = new FileReader();
     reader.onload = (ev) => setAvatar(ev.target.result);
     reader.readAsDataURL(file);
   }
 
+  function handleUrlChange(e) {
+    const url = e.target.value;
+    setAvatarUrlInput(url);
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      setAvatar(url);
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
-    await onSave({ ...member, name, bio, avatar_url: avatar });
+    setUploadError('');
+
+    let finalAvatarUrl = avatar;
+
+    // If user selected a local file, try uploading to Supabase Storage
+    if (avatarFile && avatarMode === 'file') {
+      try {
+        finalAvatarUrl = await uploadAvatarToStorage(avatarFile, member.id);
+      } catch (err) {
+        console.warn('Storage upload failed:', err.message);
+        setUploadError('圖片上傳失敗，請改用 URL 方式貼上圖片連結');
+        setSaving(false);
+        return;
+      }
+    }
+
+    // If using URL mode, use the URL input
+    if (avatarMode === 'url' && avatarUrlInput) {
+      finalAvatarUrl = avatarUrlInput;
+    }
+
+    await onSave({ ...member, name, bio, avatar_url: finalAvatarUrl });
     setSaving(false);
   }
 
@@ -985,14 +1043,59 @@ function EditModal({ member, onClose, onSave }) {
           rows={3}
         />
         <label>頭像</label>
-        <input type="file" accept="image/*" ref={fileRef} style={{display:'none'}} onChange={handleFile} />
-        <div className="modal-avatar-upload" onClick={() => fileRef.current.click()}>
-          {avatar ? (
-            <img src={avatar} alt="preview" style={{width:80,height:80,borderRadius:'50%',objectFit:'cover'}} />
-          ) : (
-            <div>📷 點擊上傳圖片</div>
-          )}
+        {/* Avatar mode tabs */}
+        <div style={{display:'flex', gap:6, marginBottom:10}}>
+          <button
+            type="button"
+            className={`btn ${avatarMode === 'url' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{padding:'6px 16px', fontSize:12, flex:'none'}}
+            onClick={() => setAvatarMode('url')}
+          >🔗 貼上網址</button>
+          <button
+            type="button"
+            className={`btn ${avatarMode === 'file' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{padding:'6px 16px', fontSize:12, flex:'none'}}
+            onClick={() => setAvatarMode('file')}
+          >📁 上傳圖片</button>
         </div>
+
+        {avatarMode === 'url' ? (
+          <input
+            type="text"
+            value={avatarUrlInput}
+            onChange={handleUrlChange}
+            placeholder="貼上圖片網址，如 https://example.com/photo.jpg"
+          />
+        ) : (
+          <>
+            <input type="file" accept="image/*" ref={fileRef} style={{display:'none'}} onChange={handleFile} />
+            <div className="modal-avatar-upload" onClick={() => fileRef.current.click()}>
+              {avatar && !avatar.startsWith('data:') ? (
+                <img src={avatar} alt="preview" style={{width:80,height:80,borderRadius:'50%',objectFit:'cover'}} />
+              ) : avatarFile ? (
+                <img src={avatar} alt="preview" style={{width:80,height:80,borderRadius:'50%',objectFit:'cover'}} />
+              ) : (
+                <div>📷 點擊上傳圖片<br/><span style={{fontSize:11,opacity:0.6}}>需先在 Supabase 建立 avatars Storage Bucket</span></div>
+              )}
+            </div>
+          </>
+        )}
+
+        {uploadError && (
+          <div style={{color:'var(--orange)', fontSize:12, marginBottom:10, background:'var(--orange-light)', padding:'8px 12px', borderRadius:8}}>
+            ⚠️ {uploadError}
+          </div>
+        )}
+
+        {/* Preview */}
+        {avatar && (
+          <div style={{textAlign:'center', marginBottom:12}}>
+            <img src={avatar} alt="avatar preview" style={{width:64,height:64,borderRadius:'50%',objectFit:'cover',border:'3px solid var(--green-pale)'}}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        )}
+
         <div className="modal-actions">
           <button className="btn btn-secondary" onClick={onClose}>取消</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
