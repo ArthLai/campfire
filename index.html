@@ -682,6 +682,7 @@ const PACKING_GROUP = [
     { name: '桌遊 / 遊戲道具' },
     { name: '藍牙喇叭' },
     { name: '打火機' },
+    { name: '快煮壺' },
   ]},
 ];
 
@@ -728,7 +729,12 @@ function App() {
   const [packingTab, setPackingTab] = useState('group');
   const [menuTab, setMenuTab] = useState('dinner');
   const [confirmSelect, setConfirmSelect] = useState('');
-  const [packingClaims, setPackingClaims] = useState(() => loadLocal('camp_claims', {}));
+  const [packingClaims, setPackingClaims] = useState(() => {
+    const saved = loadLocal('camp_claims', {});
+    // Pre-assign: 快煮壺 → Ella (group, category 2, item 12)
+    if (!saved['group-2-12']) saved['group-2-12'] = 'Ella';
+    return saved;
+  });
   const [claimSelect, setClaimSelect] = useState('');
   const [syncStatus, setSyncStatus] = useState('online');
   const [useSupabase, setUseSupabase] = useState(true);
