@@ -365,6 +365,23 @@ body {
 }
 .packing-check.checked { background: var(--green); border-color: var(--green); color: white; font-size: 11px; }
 .packing-item .note { color: var(--text-light); font-size: 12px; }
+.claim-badge {
+  font-size: 11px; padding: 2px 10px; border-radius: 10px;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.claim-badge.claimed {
+  background: var(--green-pale); color: var(--green-dark);
+}
+.claim-badge.claimed:hover {
+  background: #ffcdd2; color: #c62828;
+}
+.claim-badge.unclaimed {
+  background: #f5f5f5; color: var(--text-light);
+}
+.claim-badge.unclaimed:hover {
+  background: var(--green-pale); color: var(--green-dark);
+}
 
 /* THSR Train Table */
 .thsr-table-wrap {
@@ -631,9 +648,12 @@ const SHOPPING_LIST = [
 
 const PACKING_GROUP = [
   { category: '炊具', icon: '🍳', items: [
-    { name: '卡式瓦斯爐 ×1（額外自帶）', note: '營地提供 1 個，共 2 爐' },
     { name: '瓦斯罐 ×4-6', note: '家樂福買' },
-    { name: '大湯鍋 ×1', note: '部隊鍋用，營地只有煎烤盤' },
+    { name: '大湯鍋 ×1', note: '湯品用，營地只有煎烤盤' },
+    { name: '煎鍋 ×1' },
+    { name: '菜刀 ×2' },
+    { name: '大湯勺 ×1' },
+    { name: '砧板 ×1' },
   ]},
   { category: '餐具 & 耗材', icon: '🍽️', items: [
     { name: '免洗碗 ×15、盤 ×15' },
@@ -644,17 +664,9 @@ const PACKING_GROUP = [
     { name: '鋁箔紙 ×1 捲' },
     { name: '保鮮膜 ×1' },
   ]},
-  { category: '調味品', icon: '🧂', items: [
-    { name: '鹽、胡椒' },
-    { name: '醬油' },
-    { name: '食用油' },
-    { name: '烤肉醬 ×1' },
-    { name: '糖' },
-    { name: '美乃滋、番茄醬' },
-  ]},
   { category: '其他公用', icon: '📦', items: [
     { name: '保冷袋 / 冰桶 + 冰塊' },
-    { name: '延長線 ×1', note: '視營地供電' },
+    { name: '延長線 ×5' },
     { name: '露營燈 / 照明 ×2-3' },
     { name: '桌遊 / 遊戲道具' },
     { name: '藍牙喇叭' },
@@ -705,6 +717,8 @@ function App() {
   const [packingTab, setPackingTab] = useState('group');
   const [menuTab, setMenuTab] = useState('dinner');
   const [confirmSelect, setConfirmSelect] = useState('');
+  const [packingClaims, setPackingClaims] = useState(() => loadLocal('camp_claims', {}));
+  const [claimSelect, setClaimSelect] = useState('');
   const [syncStatus, setSyncStatus] = useState('online');
   const [useSupabase, setUseSupabase] = useState(true);
 
@@ -751,8 +765,9 @@ function App() {
     loadFromSupabase();
   }, []);
 
-  // Save packing to localStorage (packing is per-device)
+  // Save packing & claims to localStorage
   useEffect(() => saveLocal('camp_packing', packingChecked), [packingChecked]);
+  useEffect(() => saveLocal('camp_claims', packingClaims), [packingClaims]);
 
   // Fallback: save to localStorage when Supabase is offline
   useEffect(() => {
@@ -810,6 +825,19 @@ function App() {
 
   function togglePacking(key) {
     setPackingChecked(prev => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function claimItem(key) {
+    if (!claimSelect || packingClaims[key]) return;
+    setPackingClaims(prev => ({ ...prev, [key]: claimSelect }));
+  }
+
+  function unclaimItem(key) {
+    setPackingClaims(prev => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }
 
   return (
@@ -1142,8 +1170,21 @@ function App() {
         <div className="section-header">
           <div className="section-icon">🎒</div>
           <h2 className="section-title">攜帶物品</h2>
-          <p className="section-desc">勾選已準備的項目，進度會自動儲存</p>
+          <p className="section-desc">勾選已準備的項目，團體公用可認領負責攜帶</p>
         </div>
+
+        {/* Claim selector for group items */}
+        <div style={{textAlign:'center', marginBottom:20}}>
+          <div style={{display:'inline-flex', alignItems:'center', gap:8, background:'white', padding:'8px 16px', borderRadius:50, boxShadow:'var(--shadow)', fontSize:13}}>
+            <span style={{fontWeight:600, color:'var(--green-dark)'}}>我是：</span>
+            <select value={claimSelect} onChange={e => setClaimSelect(e.target.value)}
+              style={{padding:'6px 12px', border:'2px solid #e0e0e0', borderRadius:10, fontSize:13, fontFamily:'inherit', background:'white'}}>
+              <option value="">選擇名字來認領物品</option>
+              {members.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
+            </select>
+          </div>
+        </div>
+
         <div className="packing-tabs">
           <button className={`packing-tab ${packingTab==='group'?'active':''}`} onClick={()=>setPackingTab('group')}>
             📦 團體公用
@@ -1158,20 +1199,34 @@ function App() {
               <h4>{cat.icon} {cat.category}</h4>
               {cat.items.map((item, ii) => {
                 const key = `${packingTab}-${ci}-${ii}`;
+                const claimer = packingClaims[key];
                 return (
-                  <div className="packing-item" key={ii}>
+                  <div className="packing-item" key={ii} style={{flexWrap:'wrap'}}>
                     <div
                       className={`packing-check ${packingChecked[key] ? 'checked' : ''}`}
                       onClick={() => togglePacking(key)}
                     >
                       {packingChecked[key] && '✓'}
                     </div>
-                    <div>
+                    <div style={{flex:1, minWidth:0}}>
                       <span style={packingChecked[key] ? {textDecoration:'line-through', opacity:0.5} : {}}>
                         {item.name}
                       </span>
                       {item.note && <span className="note"> — {item.note}</span>}
                     </div>
+                    {packingTab === 'group' && (
+                      claimer ? (
+                        <span className="claim-badge claimed" onClick={() => unclaimItem(key)} title="點擊取消認領">
+                          {claimer}
+                        </span>
+                      ) : (
+                        claimSelect && (
+                          <span className="claim-badge unclaimed" onClick={() => claimItem(key)} title="點擊認領">
+                            + 認領
+                          </span>
+                        )
+                      )
+                    )}
                   </div>
                 );
               })}
