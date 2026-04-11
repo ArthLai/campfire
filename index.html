@@ -396,6 +396,69 @@ body {
   border-radius: 6px; margin-left: 6px;
 }
 
+/* Menu & Recipe */
+.menu-tabs {
+  display: flex; gap: 8px; margin-bottom: 24px; justify-content: center;
+}
+.menu-tab {
+  padding: 10px 28px; border-radius: 50px; border: 2px solid #e0e0e0;
+  background: white; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.menu-tab.active {
+  background: var(--brown); color: white; border-color: var(--brown);
+}
+.recipe-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+}
+.recipe-card {
+  background: white; border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  transition: transform 0.2s;
+}
+.recipe-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.recipe-img {
+  width: 100%; height: 180px; object-fit: cover;
+}
+.recipe-body { padding: 16px 20px; }
+.recipe-body h4 {
+  font-size: 16px; font-weight: 700; color: var(--brown);
+  margin-bottom: 10px;
+}
+.recipe-body ul {
+  list-style: none; padding: 0;
+}
+.recipe-body li {
+  font-size: 13px; color: var(--text-light); padding: 3px 0;
+  padding-left: 16px; position: relative; line-height: 1.6;
+}
+.recipe-body li::before {
+  content: '\2022'; position: absolute; left: 0; color: var(--green); font-weight: 700;
+}
+
+/* Shopping List */
+.shopping-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+}
+.shopping-category {
+  background: white; border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.shopping-category h4 {
+  font-size: 14px; font-weight: 700; color: var(--brown);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 2px solid #efebe9;
+  display: flex; align-items: center; gap: 6px;
+}
+.shopping-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; font-size: 13px;
+}
+.shopping-item .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--brown-light); flex-shrink: 0;
+}
+
 /* Footer */
 .footer {
   text-align: center; padding: 40px 24px;
@@ -447,14 +510,123 @@ const SCHEDULE_DAY1 = [
   { time: '13:50-14:00', title: '抵達臻美營地 Check-in', desc: '注意八五山大橋前右轉上坡 700m', highlight: true, icon: '⛺' },
   { time: '14:00-14:30', title: '休息 & 放置東西', desc: '熟悉營地環境、整理營位', icon: '🎒' },
   { time: '14:30-17:30', title: '遊戲時間', desc: '團康遊戲（3 小時）', icon: '🎮' },
-  { time: '17:30-19:00', title: '煮晚餐 & 用餐（待確認）', desc: '韓式部隊鍋 + 煎烤肉片（菜單待確認）', icon: '🍲' },
+  { time: '17:30-19:00', title: '煮晚餐 & 用餐', desc: '油蒜蝦搭法棍 / 北非蛋 / 手工薯餅 / 番茄蔬菜湯 / 日式拿波里義大利麵 / 焦糖＆巧克力爆米花', icon: '🍲' },
   { time: '19:00 起', title: '自由時間', desc: '聊天、桌遊、看星星', icon: '🌙' },
 ];
 
 const SCHEDULE_DAY2 = [
-  { time: '08:00-09:00', title: '早餐（待確認）', desc: '煎蛋火腿三明治 + 玉米濃湯（菜單待確認）', icon: '🍳' },
+  { time: '08:00-09:00', title: '早餐', desc: '三明治（雞蛋沙拉 / 鮪魚沙拉 / 火腿蛋）/ 咖啡 / 沙拉 / 手工玉米濃湯', icon: '🍳' },
   { time: '09:00-11:00', title: '自由活動 & 收拾', desc: '拍照、散步、整理營地', icon: '📸' },
   { time: '11:00', title: 'Check-out & 賦歸', desc: '平安回家！', icon: '🏠' },
+];
+
+// ─── Menu: Recipes ───
+const DINNER_RECIPES = [
+  { name: '油蒜蝦搭法棍', img: 'https://images.unsplash.com/photo-1599084993091-1cb5c0721cc6?w=400&h=300&fit=crop', items: [
+    '白蝦（去殼）600g', '蒜頭 2 整顆（約 20 瓣）', '辣椒 2-3 根', '橄欖油 120ml',
+    '白酒 60ml（可省）', '法棍麵包 3 條', '巴西里 1 把（可省）', '鹽、黑胡椒 適量',
+  ]},
+  { name: '北非蛋 Shakshuka', img: 'https://images.unsplash.com/photo-1590412200988-a436970781fa?w=400&h=300&fit=crop', items: [
+    '雞蛋 12 顆', '番茄罐頭 400g ×3', '洋蔥 2 顆', '蒜頭 6 瓣',
+    '紅椒/甜椒 2 顆', '孜然粉 2 小匙', '紅椒粉 Paprika 2 小匙', '橄欖油 3 大匙', '鹽、黑胡椒 適量',
+  ]},
+  { name: '手工薯餅', img: 'https://images.unsplash.com/photo-1619683548293-0fa1c3865fee?w=400&h=300&fit=crop', items: [
+    '馬鈴薯 6 顆（約 1.2kg）', '玉米粉/太白粉 3 大匙', '鹽、黑胡椒 適量', '食用油 適量（煎用）',
+  ]},
+  { name: '番茄蔬菜湯', img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop', items: [
+    '番茄罐頭 400g ×2', '洋蔥 1 顆', '紅蘿蔔 2 根', '西洋芹 3 根',
+    '馬鈴薯 2 顆', '高麗菜 1/4 顆', '蒜頭 4 瓣', '月桂葉 2 片',
+    '橄欖油 2 大匙', '水/高湯 2000ml', '鹽、黑胡椒 適量',
+  ]},
+  { name: '日式拿波里義大利麵', img: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop', items: [
+    '義大利麵 1200g', '番茄醬 ketchup 250g', '洋蔥 2 顆（切絲）', '青椒 3 顆（切絲）',
+    '香腸/維也納腸 12 根', '培根 200g', '蘑菇 1 盒 200g', '蒜頭 6 瓣',
+    '奶油 40g', '橄欖油 2 大匙', '伍斯特醬 2 大匙（可省）', 'Tabasco 適量（可省）', '鹽、黑胡椒 適量',
+  ]},
+  { name: '爆米花（焦糖＋巧克力）', img: 'https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=300&fit=crop', items: [
+    '爆米花玉米粒 300g', '【焦糖】砂糖 100g、奶油 40g、鹽 1/4 小匙',
+    '【巧克力】巧克力醬 1 瓶（約 200g）、可可粉 2 大匙（可省）',
+  ]},
+];
+
+const BREAKFAST_RECIPES = [
+  { name: '三明治（三種口味各 4 份）', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=300&fit=crop', items: [
+    '【雞蛋沙拉 ×4】雞蛋 8 顆、美乃滋 4 大匙、吐司 8 片',
+    '【鮪魚沙拉 ×4】鮪魚罐頭 170g ×2、美乃滋 3 大匙、洋蔥末 1/4 顆、吐司 8 片',
+    '【火腿蛋 ×4】火腿片 8 片、雞蛋 4 顆、起司片 4 片、吐司 8 片',
+  ]},
+  { name: '咖啡', img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop', items: [
+    '即溶/濾掛咖啡 15 包', '牛奶/奶精 適量', '糖包 適量',
+  ]},
+  { name: '沙拉', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', items: [
+    '生菜沙拉（袋裝）2 袋', '小番茄 1 盒 300g', '小黃瓜 2 根', '沙拉醬 1 瓶',
+  ]},
+  { name: '手工玉米濃湯', img: 'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=400&h=300&fit=crop', items: [
+    '玉米醬罐頭 420g ×2', '玉米粒罐頭 340g ×1', '洋蔥 1 顆（切末）',
+    '奶油 30g', '牛奶 600ml', '水/高湯 600ml', '麵粉 2 大匙', '鹽、白胡椒 適量',
+  ]},
+];
+
+// ─── Shopping List ───
+const SHOPPING_LIST = [
+  { category: '肉類 & 海鮮', icon: '🥩', items: [
+    { name: '白蝦（去殼）600g', note: '油蒜蝦' },
+    { name: '火腿片 8 片', note: '三明治' },
+    { name: '香腸/維也納腸 12 根', note: '義大利麵' },
+    { name: '培根 200g', note: '義大利麵' },
+  ]},
+  { category: '蛋奶', icon: '🥚', items: [
+    { name: '雞蛋 24 顆（2 盒）', note: '北非蛋 12 + 蛋沙拉 8 + 火腿蛋 4' },
+    { name: '起司片 4 片', note: '三明治' },
+    { name: '奶油 140g', note: '焦糖 40 + 義大利麵 40 + 濃湯 30 + 爆米花 30' },
+    { name: '牛奶 1L', note: '濃湯 600ml + 咖啡' },
+  ]},
+  { category: '蔬果', icon: '🥬', items: [
+    { name: '洋蔥 6 顆', note: '北非蛋 2 + 蔬菜湯 1 + 義大利麵 2 + 濃湯 1' },
+    { name: '蒜頭 4 整顆', note: '全料理通用' },
+    { name: '辣椒 3 根', note: '油蒜蝦' },
+    { name: '紅椒/甜椒 2 顆', note: '北非蛋' },
+    { name: '青椒 3 顆', note: '義大利麵' },
+    { name: '紅蘿蔔 2 根', note: '蔬菜湯' },
+    { name: '西洋芹 3 根', note: '蔬菜湯' },
+    { name: '馬鈴薯 8 顆', note: '蔬菜湯 2 + 薯餅 6' },
+    { name: '高麗菜 1/4 顆', note: '蔬菜湯' },
+    { name: '小番茄 1 盒', note: '沙拉' },
+    { name: '小黃瓜 2 根', note: '沙拉' },
+    { name: '生菜沙拉 2 袋', note: '沙拉' },
+    { name: '蘑菇 1 盒 200g', note: '義大利麵' },
+    { name: '巴西里/香菜 1 把', note: '油蒜蝦（可省）' },
+  ]},
+  { category: '罐頭 & 乾貨', icon: '🥫', items: [
+    { name: '番茄罐頭 400g ×5', note: '北非蛋 3 + 蔬菜湯 2' },
+    { name: '鮪魚罐頭 170g ×2', note: '三明治' },
+    { name: '玉米醬罐頭 420g ×2', note: '玉米濃湯' },
+    { name: '玉米粒罐頭 340g ×1', note: '玉米濃湯' },
+    { name: '義大利麵 1200g（2-3 包）', note: '拿波里' },
+    { name: '爆米花玉米粒 300g', note: '爆米花' },
+    { name: '即溶/濾掛咖啡 15 包', note: '早餐' },
+  ]},
+  { category: '麵包', icon: '🍞', items: [
+    { name: '法棍麵包 3 條', note: '油蒜蝦' },
+    { name: '吐司 24 片（2 條）', note: '三明治' },
+  ]},
+  { category: '調味 & 醬料', icon: '🧂', items: [
+    { name: '橄欖油 1 瓶 500ml', note: '全料理通用' },
+    { name: '番茄醬 ketchup 1 大瓶', note: '義大利麵 + 薯餅' },
+    { name: '美乃滋 1 瓶', note: '三明治' },
+    { name: '沙拉醬 1 瓶', note: '沙拉' },
+    { name: '白酒 1 小瓶（可省）', note: '油蒜蝦' },
+    { name: '孜然粉 1 小罐', note: '北非蛋' },
+    { name: '紅椒粉 Paprika 1 小罐', note: '北非蛋' },
+    { name: '月桂葉 1 小包', note: '蔬菜湯' },
+    { name: '伍斯特醬 1 小瓶（可省）', note: '義大利麵' },
+    { name: 'Tabasco 1 小瓶（可省）', note: '義大利麵' },
+    { name: '玉米粉/太白粉 1 包', note: '薯餅' },
+    { name: '麵粉 1 小包', note: '玉米濃湯' },
+    { name: '砂糖 100g', note: '焦糖爆米花' },
+    { name: '巧克力醬 1 瓶', note: '巧克力爆米花' },
+    { name: '可可粉 1 小包（可省）', note: '巧克力爆米花' },
+  ]},
 ];
 
 const PACKING_GROUP = [
@@ -531,6 +703,7 @@ function App() {
   const [editMember, setEditMember] = useState(null);
   const [packingChecked, setPackingChecked] = useState(() => loadLocal('camp_packing', {}));
   const [packingTab, setPackingTab] = useState('group');
+  const [menuTab, setMenuTab] = useState('dinner');
   const [confirmSelect, setConfirmSelect] = useState('');
   const [syncStatus, setSyncStatus] = useState('online');
   const [useSupabase, setUseSupabase] = useState(true);
@@ -649,6 +822,7 @@ function App() {
             <a href="#members">成員</a>
             <a href="#campsite">營地</a>
             <a href="#schedule">議程</a>
+            <a href="#menu">菜單</a>
             <a href="#meeting">集合</a>
             <a href="#packing">物品</a>
           </div>
@@ -798,6 +972,76 @@ function App() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Menu & Recipes */}
+      <section className="section" id="menu" style={{background:'white'}}>
+        <div style={{maxWidth:1100,margin:'0 auto',padding:'0 24px'}}>
+          <div className="section-header">
+            <div className="section-icon">🍽️</div>
+            <h2 className="section-title">露營菜單</h2>
+            <p className="section-desc">12 人份食譜 & 採購清單</p>
+          </div>
+
+          <div className="menu-tabs">
+            <button className={`menu-tab ${menuTab==='dinner'?'active':''}`} onClick={()=>setMenuTab('dinner')}>
+              🍲 第一天晚餐
+            </button>
+            <button className={`menu-tab ${menuTab==='breakfast'?'active':''}`} onClick={()=>setMenuTab('breakfast')}>
+              🍳 第二天早餐
+            </button>
+            <button className={`menu-tab ${menuTab==='shopping'?'active':''}`} onClick={()=>setMenuTab('shopping')}>
+              🛒 採購清單
+            </button>
+          </div>
+
+          {menuTab === 'dinner' && (
+            <div className="recipe-grid">
+              {DINNER_RECIPES.map((r, i) => (
+                <div className="recipe-card" key={i}>
+                  <img className="recipe-img" src={r.img} alt={r.name} />
+                  <div className="recipe-body">
+                    <h4>{r.name}</h4>
+                    <ul>{r.items.map((item, j) => <li key={j}>{item}</li>)}</ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {menuTab === 'breakfast' && (
+            <div className="recipe-grid">
+              {BREAKFAST_RECIPES.map((r, i) => (
+                <div className="recipe-card" key={i}>
+                  <img className="recipe-img" src={r.img} alt={r.name} />
+                  <div className="recipe-body">
+                    <h4>{r.name}</h4>
+                    <ul>{r.items.map((item, j) => <li key={j}>{item}</li>)}</ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {menuTab === 'shopping' && (
+            <div className="shopping-grid">
+              {SHOPPING_LIST.map((cat, ci) => (
+                <div className="shopping-category" key={ci}>
+                  <h4>{cat.icon} {cat.category}</h4>
+                  {cat.items.map((item, ii) => (
+                    <div className="shopping-item" key={ii}>
+                      <div className="dot" />
+                      <div>
+                        <span style={{fontWeight:500}}>{item.name}</span>
+                        {item.note && <span className="note" style={{color:'var(--text-light)',fontSize:12}}> — {item.note}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
