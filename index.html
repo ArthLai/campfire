@@ -729,12 +729,7 @@ function App() {
   const [packingTab, setPackingTab] = useState('group');
   const [menuTab, setMenuTab] = useState('dinner');
   const [confirmSelect, setConfirmSelect] = useState('');
-  const [packingClaims, setPackingClaims] = useState(() => {
-    const saved = loadLocal('camp_claims', {});
-    // Pre-assign: 快煮壺 → Ella (group, category 2, item 12)
-    if (!saved['group-2-12']) saved['group-2-12'] = 'Ella';
-    return saved;
-  });
+  const [packingClaims, setPackingClaims] = useState({});
   const [claimSelect, setClaimSelect] = useState('');
   const [syncStatus, setSyncStatus] = useState('online');
   const [useSupabase, setUseSupabase] = useState(true);
@@ -768,6 +763,19 @@ function App() {
           setConfirmed(confMap);
         }
 
+        // Load packing claims
+        const { data: claimsData, error: claimsErr } = await supabase
+          .from('packing_claims')
+          .select('*');
+
+        if (claimsErr) throw claimsErr;
+
+        if (claimsData) {
+          const claimsMap = {};
+          claimsData.forEach(c => { claimsMap[c.item_key] = c.claimed_by; });
+          setPackingClaims(claimsMap);
+        }
+
         setSyncStatus('online');
       } catch (err) {
         console.warn('Supabase not available, using local fallback:', err.message);
@@ -776,6 +784,9 @@ function App() {
         // Load from localStorage as fallback
         setMembers(loadLocal('camp_members', FALLBACK_MEMBERS));
         setConfirmed(loadLocal('camp_confirmed', {}));
+        const savedClaims = loadLocal('camp_claims', {});
+        if (!savedClaims['group-2-12']) savedClaims['group-2-12'] = 'Ella';
+        setPackingClaims(savedClaims);
       }
     }
 
@@ -844,17 +855,38 @@ function App() {
     setPackingChecked(prev => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function claimItem(key) {
+  async function claimItem(key) {
     if (!claimSelect || packingClaims[key]) return;
-    setPackingClaims(prev => ({ ...prev, [key]: claimSelect }));
+    const newClaims = { ...packingClaims, [key]: claimSelect };
+    setPackingClaims(newClaims);
+
+    if (useSupabase) {
+      setSyncStatus('saving');
+      try {
+        await supabase.from('packing_claims').upsert({
+          item_key: key,
+          claimed_by: claimSelect,
+          claimed_at: new Date().toISOString(),
+        }, { onConflict: 'item_key' });
+        setSyncStatus('online');
+      } catch { setSyncStatus('offline'); }
+    }
   }
 
-  function unclaimItem(key) {
+  async function unclaimItem(key) {
     setPackingClaims(prev => {
       const next = { ...prev };
       delete next[key];
       return next;
     });
+
+    if (useSupabase) {
+      setSyncStatus('saving');
+      try {
+        await supabase.from('packing_claims').delete().eq('item_key', key);
+        setSyncStatus('online');
+      } catch { setSyncStatus('offline'); }
+    }
   }
 
   return (

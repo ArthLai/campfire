@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "campfire",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "/Users/arth/claude/campfire-repo", "-p", "3458", "-c-1"],
+      "port": 3458
+    }
+  ]
+}

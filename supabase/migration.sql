@@ -62,7 +62,25 @@ CREATE POLICY "Allow all read packing" ON packing_checks FOR SELECT USING (true)
 CREATE POLICY "Allow all upsert packing" ON packing_checks FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow all update packing" ON packing_checks FOR UPDATE USING (true);
 
--- 7. Auto-update updated_at on members
+-- 7. Packing claims table
+CREATE TABLE IF NOT EXISTS packing_claims (
+  id SERIAL PRIMARY KEY,
+  item_key TEXT NOT NULL UNIQUE,
+  claimed_by TEXT NOT NULL,
+  claimed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE packing_claims ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all read packing_claims" ON packing_claims FOR SELECT USING (true);
+CREATE POLICY "Allow all insert packing_claims" ON packing_claims FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow all update packing_claims" ON packing_claims FOR UPDATE USING (true);
+CREATE POLICY "Allow all delete packing_claims" ON packing_claims FOR DELETE USING (true);
+
+-- Pre-assign: 快煮壺 → Ella
+INSERT INTO packing_claims (item_key, claimed_by) VALUES ('group-2-12', 'Ella')
+ON CONFLICT (item_key) DO NOTHING;
+
+-- 8. Auto-update updated_at on members
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
