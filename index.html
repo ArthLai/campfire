@@ -527,7 +527,7 @@ const SCHEDULE_DAY1 = [
   { time: '13:50-14:00', title: '抵達臻美營地 Check-in', desc: '注意八五山大橋前右轉上坡 700m', highlight: true, icon: '⛺' },
   { time: '14:00-14:30', title: '休息 & 放置東西', desc: '熟悉營地環境、整理營位', icon: '🎒' },
   { time: '14:30-17:30', title: '遊戲時間', desc: '團康遊戲（3 小時）', icon: '🎮' },
-  { time: '17:30-19:00', title: '煮晚餐 & 用餐', desc: '油蒜蝦搭法棍 / 北非蛋 / 手工薯餅 / 番茄蔬菜湯 / 日式拿波里義大利麵 / 焦糖＆巧克力爆米花', icon: '🍲' },
+  { time: '17:30-19:00', title: '煮晚餐 & 用餐', desc: '部隊鍋 + 煎烤肉片 & 蔬菜 / 白飯 / 焦糖＆巧克力爆米花（宵夜）', icon: '🍲' },
   { time: '19:00 起', title: '自由時間', desc: '聊天、桌遊、看星星', icon: '🌙' },
 ];
 
@@ -539,26 +539,20 @@ const SCHEDULE_DAY2 = [
 
 // ─── Menu: Recipes ───
 const DINNER_RECIPES = [
-  { name: '油蒜蝦搭法棍', img: 'https://resource02.ulifestyle.com.hk/ulcms/content/article/thumbnail/1280x720/uf/3185000/3185309/1tc.jpg', items: [
-    '白蝦（去殼）600g', '蒜頭 2 整顆（約 20 瓣）', '辣椒 2-3 根', '橄欖油 120ml',
-    '白酒 60ml（可省）', '法棍麵包 3 條', '巴西里 1 把（可省）', '鹽、黑胡椒 適量',
+  { name: '部隊鍋', img: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=400&h=300&fit=crop', items: [
+    '韓式泡菜 1 大包（600g）', '午餐肉 SPAM ×2 罐', '韓式辣醬 3 大匙',
+    '年糕 300g', '起司片 6 片', '泡麵 6-8 包（辛拉麵推薦）',
+    '香腸/維也納腸 12 根', '豆腐 2 盒', '蔥 3 根', '蒜頭 6 瓣',
+    '高湯/水 2000ml',
+    '【可選加料】魚板、蟹肉棒、金針菇、玉米粒',
   ]},
-  { name: '北非蛋 Shakshuka', img: 'https://images.unsplash.com/photo-1590412200988-a436970781fa?w=400&h=300&fit=crop', items: [
-    '雞蛋 12 顆', '番茄罐頭 400g ×3', '洋蔥 2 顆', '蒜頭 6 瓣',
-    '紅椒/甜椒 2 顆', '孜然粉 2 小匙', '紅椒粉 Paprika 2 小匙', '橄欖油 3 大匙', '鹽、黑胡椒 適量',
+  { name: '煎烤肉片 & 蔬菜', img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop', items: [
+    '梅花豬/五花肉片 800g', '牛肉片 400g（可省）',
+    '洋蔥 2 顆（切圈）', '杏鮑菇 1 包', '玉米筍 1 包',
+    '烤肉醬 1 瓶', '鹽、黑胡椒 適量',
   ]},
-  { name: '手工薯餅', img: 'https://candylife.tw/wp-content/uploads/20250213132002_0_0385aa.jpg', items: [
-    '馬鈴薯 6 顆（約 1.2kg）', '玉米粉/太白粉 3 大匙', '鹽、黑胡椒 適量', '食用油 適量（煎用）',
-  ]},
-  { name: '番茄蔬菜湯', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSA6jSBnI-bwPhG-g1YkJKMwN4BMggtTbvdHQ&s', items: [
-    '番茄罐頭 400g ×2', '洋蔥 1 顆', '紅蘿蔔 2 根', '西洋芹 3 根',
-    '馬鈴薯 2 顆', '高麗菜 1/4 顆', '蒜頭 4 瓣', '月桂葉 2 片',
-    '橄欖油 2 大匙', '水/高湯 2000ml', '鹽、黑胡椒 適量',
-  ]},
-  { name: '日式拿波里義大利麵', img: 'https://img.ltn.com.tw/Upload/food/page/2022/12/21/221221-12031-2-RPu4n.jpg', items: [
-    '義大利麵 1200g', '番茄醬 ketchup 250g', '洋蔥 2 顆（切絲）', '青椒 3 顆（切絲）',
-    '香腸/維也納腸 12 根', '培根 200g', '蘑菇 1 盒 200g', '蒜頭 6 瓣',
-    '奶油 40g', '橄欖油 2 大匙', '伍斯特醬 2 大匙（可省）', 'Tabasco 適量（可省）', '鹽、黑胡椒 適量',
+  { name: '白飯', img: 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=400&h=300&fit=crop', items: [
+    '白米 1.5kg（或即食飯 11 盒）', '水 適量',
   ]},
   { name: '爆米花（焦糖＋巧克力）', img: 'https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400&h=300&fit=crop', items: [
     '爆米花玉米粒 300g', '【焦糖】砂糖 100g、奶油 40g、鹽 1/4 小匙',
@@ -586,63 +580,59 @@ const BREAKFAST_RECIPES = [
 
 // ─── Shopping List ───
 const SHOPPING_LIST = [
-  { category: '肉類 & 海鮮', icon: '🥩', items: [
-    { name: '白蝦（去殼）600g', note: '油蒜蝦' },
-    { name: '火腿片 8 片', note: '三明治' },
-    { name: '香腸/維也納腸 12 根', note: '義大利麵' },
-    { name: '培根 200g', note: '義大利麵' },
+  { category: '肉類', icon: '🥩', items: [
+    { name: '梅花豬/五花肉片 800g', note: '煎烤' },
+    { name: '牛肉片 400g（可省）', note: '煎烤' },
+    { name: '香腸/維也納腸 12 根', note: '部隊鍋' },
+    { name: '午餐肉 SPAM ×2 罐', note: '部隊鍋' },
+    { name: '火腿片 8 片', note: '早餐三明治' },
   ]},
   { category: '蛋奶', icon: '🥚', items: [
-    { name: '雞蛋 24 顆（2 盒）', note: '北非蛋 12 + 蛋沙拉 8 + 火腿蛋 4' },
-    { name: '起司片 4 片', note: '三明治' },
-    { name: '奶油 140g', note: '焦糖 40 + 義大利麵 40 + 濃湯 30 + 爆米花 30' },
+    { name: '雞蛋 12 顆（1 盒）', note: '蛋沙拉 8 + 火腿蛋 4' },
+    { name: '起司片 10 片', note: '部隊鍋 6 + 三明治 4' },
+    { name: '奶油 70g', note: '焦糖爆米花 40 + 濃湯 30' },
     { name: '牛奶 1L', note: '濃湯 600ml + 咖啡' },
   ]},
   { category: '蔬果', icon: '🥬', items: [
-    { name: '洋蔥 6 顆', note: '北非蛋 2 + 蔬菜湯 1 + 義大利麵 2 + 濃湯 1' },
-    { name: '蒜頭 4 整顆', note: '全料理通用' },
-    { name: '辣椒 3 根', note: '油蒜蝦' },
-    { name: '紅椒/甜椒 2 顆', note: '北非蛋' },
-    { name: '青椒 3 顆', note: '義大利麵' },
-    { name: '紅蘿蔔 2 根', note: '蔬菜湯' },
-    { name: '西洋芹 3 根', note: '蔬菜湯' },
-    { name: '馬鈴薯 8 顆', note: '蔬菜湯 2 + 薯餅 6' },
-    { name: '高麗菜 1/4 顆', note: '蔬菜湯' },
-    { name: '小番茄 1 盒', note: '沙拉' },
-    { name: '小黃瓜 2 根', note: '沙拉' },
-    { name: '生菜沙拉 2 袋', note: '沙拉' },
-    { name: '蘑菇 1 盒 200g', note: '義大利麵' },
-    { name: '巴西里/香菜 1 把', note: '油蒜蝦（可省）' },
+    { name: '洋蔥 3 顆', note: '烤肉 2 + 濃湯 1' },
+    { name: '蒜頭 2 整顆', note: '部隊鍋 + 烤肉' },
+    { name: '蔥 3 根', note: '部隊鍋' },
+    { name: '杏鮑菇 1 包', note: '煎烤' },
+    { name: '玉米筍 1 包', note: '煎烤' },
+    { name: '小番茄 1 盒', note: '早餐沙拉' },
+    { name: '小黃瓜 2 根', note: '早餐沙拉' },
+    { name: '生菜沙拉 2 袋', note: '早餐沙拉' },
+  ]},
+  { category: '豆腐 & 火鍋料', icon: '🍢', items: [
+    { name: '豆腐 2 盒', note: '部隊鍋' },
+    { name: '韓式泡菜 1 大包 600g', note: '部隊鍋（核心）' },
+    { name: '年糕 300g', note: '部隊鍋' },
+    { name: '泡麵 6-8 包（辛拉麵推薦）', note: '部隊鍋' },
+    { name: '魚板/蟹肉棒（可選）', note: '部隊鍋加料' },
+    { name: '金針菇（可選）', note: '部隊鍋加料' },
   ]},
   { category: '罐頭 & 乾貨', icon: '🥫', items: [
-    { name: '番茄罐頭 400g ×5', note: '北非蛋 3 + 蔬菜湯 2' },
-    { name: '鮪魚罐頭 170g ×2', note: '三明治' },
+    { name: '鮪魚罐頭 170g ×2', note: '早餐三明治' },
     { name: '玉米醬罐頭 420g ×2', note: '玉米濃湯' },
     { name: '玉米粒罐頭 340g ×1', note: '玉米濃湯' },
-    { name: '義大利麵 1200g（2-3 包）', note: '拿波里' },
+    { name: '白米 1.5kg 或即食飯 11 盒', note: '晚餐配飯' },
     { name: '爆米花玉米粒 300g', note: '爆米花' },
     { name: '即溶/濾掛咖啡 15 包', note: '早餐' },
   ]},
   { category: '麵包', icon: '🍞', items: [
-    { name: '法棍麵包 3 條', note: '油蒜蝦' },
-    { name: '吐司 24 片（2 條）', note: '三明治' },
+    { name: '吐司 24 片（2 條）', note: '早餐三明治' },
   ]},
   { category: '調味 & 醬料', icon: '🧂', items: [
-    { name: '橄欖油 1 瓶 500ml', note: '全料理通用' },
-    { name: '番茄醬 ketchup 1 大瓶', note: '義大利麵 + 薯餅' },
+    { name: '韓式辣醬 1 瓶', note: '部隊鍋' },
+    { name: '烤肉醬 1 瓶', note: '煎烤肉' },
     { name: '美乃滋 1 瓶', note: '三明治' },
     { name: '沙拉醬 1 瓶', note: '沙拉' },
-    { name: '白酒 1 小瓶（可省）', note: '油蒜蝦' },
-    { name: '孜然粉 1 小罐', note: '北非蛋' },
-    { name: '紅椒粉 Paprika 1 小罐', note: '北非蛋' },
-    { name: '月桂葉 1 小包', note: '蔬菜湯' },
-    { name: '伍斯特醬 1 小瓶（可省）', note: '義大利麵' },
-    { name: 'Tabasco 1 小瓶（可省）', note: '義大利麵' },
-    { name: '玉米粉/太白粉 1 包', note: '薯餅' },
+    { name: '食用油 1 瓶', note: '煎烤用' },
     { name: '麵粉 1 小包', note: '玉米濃湯' },
     { name: '砂糖 100g', note: '焦糖爆米花' },
     { name: '巧克力醬 1 瓶', note: '巧克力爆米花' },
     { name: '可可粉 1 小包（可省）', note: '巧克力爆米花' },
+    { name: '鹽、黑胡椒、白胡椒', note: '通用' },
   ]},
 ];
 
